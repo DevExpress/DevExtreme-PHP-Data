@@ -1,0 +1,20 @@
+sudo: false
+language: php
+
+php:
+  - 5.3
+  - 5.6
+  - 7.1
+  - hhvm
+
+env:
+  - TEST_CONF="config.travis.json"
+
+services:
+  - mysql
+
+before_script:
+  - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
+  - mysql test < tests/test_products.sql
+
+script: phpunit

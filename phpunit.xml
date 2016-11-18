@@ -1,0 +1,8 @@
+<phpunit bootstrap="tests/bootstrap.php" verbose="true">
+  <testsuites>
+    <testsuite name="DataSourceLoader">
+      <file>tests/DbSetAPITest.php</file>
+      <file>tests/DataSourceLoaderTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

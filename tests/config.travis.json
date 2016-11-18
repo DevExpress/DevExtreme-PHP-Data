@@ -1,0 +1,7 @@
+{
+  "serverName": "127.0.0.1",
+  "databaseName": "test",
+  "user": "travis",
+  "passowrd": "",
+  "tableName": "test_products"
+}
