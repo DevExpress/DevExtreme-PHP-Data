@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/NickMitrokhin/mytestrep.svg?branch=master)](https://travis-ci.org/NickMitrokhin/mytestrep)
+[![Build Status](https://travis-ci.org/DevExpress/DevExtreme-PHP-Data.svg?branch=master)](https://travis-ci.org/DevExpress/DevExtreme-PHP-Data)
 # DevExtreme PHP Data
 ---
 
