@@ -1,8 +1,8 @@
 {
-    "name": "devextreme-php-data",
-    "license": "MIT",
-    "dependencies": {
-        "devextreme-web": "16.1.8",
-        "devextreme-aspnet-data": "1.1.0"
-    }
+  "name": "devextreme-php-data",
+  "license": "MIT",
+  "dependencies": {
+    "devextreme-web": "16.2.3",
+    "devextreme-aspnet-data": "1.1.0"
+  }
 }
