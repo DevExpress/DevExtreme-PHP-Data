@@ -57,6 +57,7 @@ class DbSet {
         }
     }
     public function Select($expression) {
+        Utils::EscapeExpressionValues($this->mySQL, $expression);
         $this->_SelectImpl($expression);
         return $this;
     }
@@ -84,6 +85,7 @@ class DbSet {
         }
     }
     public function Filter($expression) {
+        Utils::EscapeExpressionValues($this->mySQL, $expression);
         if (isset($expression) && is_array($expression)) {
             $result = FilterHelper::GetSqlExprByArray($expression);
             if (strlen($result)) {
@@ -96,6 +98,7 @@ class DbSet {
         return $this;
     }
     public function Sort($expression) {
+        Utils::EscapeExpressionValues($this->mySQL, $expression);
         if (isset($expression)) {
             $result = "";
             if (is_string($expression)) {
@@ -127,6 +130,8 @@ class DbSet {
         return $this;
     }
     public function Group($expression, $groupSummary = NULL, $skip = NULL, $take = NULL) {
+        Utils::EscapeExpressionValues($this->mySQL, $expression);
+        Utils::EscapeExpressionValues($this->mySQL, $groupSummary);
         $this->groupSettings = NULL;
         if (isset($expression)) {
             $groupFields = "";
@@ -175,6 +180,8 @@ class DbSet {
         return $this;
     }
     public function GetTotalSummary($expression, $filterExpression = NULL) {
+        Utils::EscapeExpressionValues($this->mySQL, $expression);
+        Utils::EscapeExpressionValues($this->mySQL, $filterExpression);
         $result = NULL;
         if (isset($expression) && is_array($expression)) {
             $summaryInfo = AggregateHelper::GetSummaryInfo($expression);
@@ -268,6 +275,7 @@ class DbSet {
         return $result;
     }
     public function Insert($values) {
+        Utils::EscapeExpressionValues($this->mySQL, $values);
         $result = NULL;
         if (isset($values) && is_array($values)) {
             $fields = "";
@@ -295,6 +303,8 @@ class DbSet {
         return $result;
     }
     public function Update($key, $values) {
+        Utils::EscapeExpressionValues($this->mySQL, $key);
+        Utils::EscapeExpressionValues($this->mySQL, $values);
         $result = NULL;
         if (isset($key) && is_array($key) && isset($values) && is_array($values)) {
             $fields = "";
@@ -324,6 +334,7 @@ class DbSet {
         return $result;
     }
     public function Delete($key) {
+        Utils::EscapeExpressionValues($this->mySQL, $key);
         $result = NULL;
         if (isset($key) && is_array($key)) {
             $queryString = sprintf("%s %s %s %s %s",

@@ -63,20 +63,24 @@ class FilterHelper {
                 case "startswith": {
                     $pattern = "%s %s '%s%%'";
                     $clause = self::$LIKE_OP;
+                    $val = addcslashes($val, "%_");
                     break;
                 }
                 case "endswith": {
                     $pattern = "%s %s '%%%s'";
+                    $val = addcslashes($val, "%_");
                     $clause = self::$LIKE_OP;
                     break;
                 }
                 case "contains": {
                     $pattern = "%s %s '%%%s%%'";
+                    $val = addcslashes($val, "%_");
                     $clause = self::$LIKE_OP;
                     break;
                 }
                 case "notcontains": {
                     $pattern = "%s %s '%%%s%%'";
+                    $val = addcslashes($val, "%_");
                     $clause = sprintf("%s %s", self::$NOT_OP, self::$LIKE_OP);
                     break;
                 }
