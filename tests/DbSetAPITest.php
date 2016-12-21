@@ -6,7 +6,7 @@ class DbSetAPITest extends TestBase {
         $filterExpression1 = array(
             array("Category", "=", "Dairy Products"),
             array("BDate", "=", "6/19/2013"),
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
@@ -15,7 +15,7 @@ class DbSetAPITest extends TestBase {
             "and",
             array("BDate", "=", "2013-06-19"),
             "and",
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             "and",
             array("CustomerName", "=", "Fuller Andrew"),
             "and",
@@ -24,28 +24,28 @@ class DbSetAPITest extends TestBase {
         $filterExpression3 = array(
             array("Category", "=", "Dairy Products"),
             array("BDate.year", "=", "2013"),
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
         $filterExpression4 = array(
             array("Category", "=", "Dairy Products"),
             array("BDate.month", "=", "6"),
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
         $filterExpression5 = array(
             array("Category", "=", "Dairy Products"),
             array("BDate.day", "=", "19"),
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
         $filterExpression6 = array(
             array("Category", "=", "Dairy Products"),
             array("BDate.dayOfWeek", "=", "3"),
-            array("Name", "=", "Sir Rodney\'s Scones"),
+            array("Name", "=", "Sir Rodney's Scones"),
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
@@ -236,6 +236,14 @@ class DbSetAPITest extends TestBase {
             array($summaryExpression5, 15.5)
         );
     }
+    public function providerEscapeExpressionValues() {
+        $filterExpression1 = array("Name", "=", "N'o\"r\d-Ost Mat%123_jes)hering#");
+        $filterExpression2 = array("Name", "contains", "%123_jes)");
+        return array(
+            array($filterExpression1, 30),
+            array($filterExpression2, 30)
+        );
+    }
     public function testGetCount() {
         $this->assertEquals(30, $this->dbSet->GetCount());
     }
@@ -342,5 +350,17 @@ class DbSetAPITest extends TestBase {
         $this->dbSet->Group($groupExpression);
         $groupCount = $this->dbSet->GetGroupCount();
         $this->assertEquals($groupCount, 4);
+    }
+    /**
+     * @dataProvider providerEscapeExpressionValues
+     */
+    public function testEscapeExpressionValues($filterExpression, $value) {
+        $data = $this->dbSet->Select("ID")->Filter($filterExpression)->AsArray();
+        $result = false;
+        if (count($data) == 1) {
+            $itemData = $data[0];
+            $result = isset($itemData["ID"]) && $itemData["ID"] == $value;
+        }
+        $this->assertTrue($result);
     }
 }

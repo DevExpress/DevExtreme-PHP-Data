@@ -46,4 +46,4 @@ INSERT INTO `test_products` (`ID`, `Name`, `Category`, `CustomerName`, `BDate`) 
 (27, 'Schoggi Schokolade', 'Seafood', 'Leverling Janet', '2013-06-23'),
 (28, 'Rössle Sauerkraut', 'Condiments', 'Peacock Margaret', '2013-08-05'),
 (29, 'Thüringer Rostbratwurst', 'Beverages', 'Peacock Margaret', '2013-01-26'),
-(30, 'Nord-Ost Matjeshering', 'Seafood', 'Leverling Janet', '2013-11-16');
+(30, 'N''o"r\\d-Ost Mat%123_jes)hering#', 'Seafood', 'Leverling Janet', '2013-11-16');
