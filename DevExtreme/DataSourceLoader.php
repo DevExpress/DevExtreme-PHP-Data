@@ -11,7 +11,7 @@ class DataSourceLoader {
             if ($dbSet->GetLastError() !== NULL) {
                 return $result;
             }
-            $totalCount = (isset($params["requireTotalCount"]) && $params["requireTotalCount"] == true)
+            $totalCount = (isset($params["requireTotalCount"]) && $params["requireTotalCount"] === true)
                           ? $dbSet->GetCount() : NULL;
             if ($dbSet->GetLastError() !== NULL) {
                 return $result;
@@ -24,7 +24,7 @@ class DataSourceLoader {
                 $groupExpression = $params["group"];
                 $groupSummary = Utils::GetItemValueOrDefault($params, "groupSummary");
                 $dbSet->Group($groupExpression, $groupSummary, $skip, $take);
-                if (isset($params["requireGroupCount"]) && $params["requireGroupCount"] == true) {
+                if (isset($params["requireGroupCount"]) && $params["requireGroupCount"] === true) {
                     $groupCount = $dbSet->GetGroupCount();
                 }
             }
