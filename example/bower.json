@@ -2,7 +2,7 @@
   "name": "devextreme-php-data",
   "license": "MIT",
   "dependencies": {
-    "devextreme-web": "16.2.5",
-    "devextreme-aspnet-data": "1.1.0"
+    "devextreme-web": "16.2.6",
+    "devextreme-aspnet-data": "1.2.4"
   }
 }
