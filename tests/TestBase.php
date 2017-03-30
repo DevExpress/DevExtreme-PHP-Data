@@ -1,8 +1,12 @@
 <?php
 require_once("ConfigHelper.php");
+if (!class_exists('\PHPUnit\Framework\TestCase') && class_exists('\PHPUnit_Framework_TestCase')) {
+    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
+}
 use DevExtreme\DbSet;
+use PHPUnit\Framework\TestCase;
 
-class TestBase extends PHPUnit_Framework_TestCase {
+class TestBase extends TestCase {
     protected static $mySQL;
     protected static $tableName;
     protected $dbSet;
