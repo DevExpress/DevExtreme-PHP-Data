@@ -29,8 +29,8 @@ class Utils {
         if (!$isFieldName) {
            $value = self::_ConvertDateTimeToMySQLValue($value);
         }
-        $resultPattern = $isFieldName ? "`%s`" : "'%s'";
-        $result = sprintf($resultPattern, strval($value));
+        $resultPattern = $isFieldName ? "`%s`" : (is_bool($value) ? "%s" : "'%s'");
+        $result = sprintf($resultPattern, is_bool($value) ? ($value ? "1" : "0") : strval($value));
         return $result;
     }
     public static function GetItemValueOrDefault($params, $key, $defaultValue = NULL) {
