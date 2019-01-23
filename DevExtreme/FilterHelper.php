@@ -88,6 +88,20 @@ class FilterHelper {
                     $clause = "";
                 }
             }
+            
+            if(is_null($val)){
+                $val = "null";
+
+                switch ($clause){
+                    case "=":
+                        $clause = "IS";
+                        break;
+                    case "<>":
+                        $clause = "IS NOT";
+                        break;
+                }
+            }
+            
             $result = sprintf($pattern, $fieldName, $clause, $val);
         }
         return $result;
