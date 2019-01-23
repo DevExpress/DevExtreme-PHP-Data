@@ -29,6 +29,11 @@ class Utils {
         if (!$isFieldName) {
            $value = self::_ConvertDateTimeToMySQLValue($value);
         }
+        
+        if(is_null($value)){
+            return $value;
+        }
+        
         $resultPattern = $isFieldName ? "`%s`" : (is_bool($value) ? "%s" : "'%s'");
         $result = sprintf($resultPattern, is_bool($value) ? ($value ? "1" : "0") : strval($value));
         return $result;
