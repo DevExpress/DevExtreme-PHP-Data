@@ -1,6 +1,7 @@
 <?php
 namespace DevExtreme;
 class Utils {
+    private static $NULL_VAL = "NULL";
     public static function StringToNumber($str) {
         $currentLocale = localeconv();
         $decimalPoint = $currentLocale["decimal_point"];
@@ -29,13 +30,9 @@ class Utils {
         if (!$isFieldName) {
            $value = self::_ConvertDateTimeToMySQLValue($value);
         }
-        
-        if(is_null($value)){
-            return $value;
-        }
-        
-        $resultPattern = $isFieldName ? "`%s`" : (is_bool($value) ? "%s" : "'%s'");
-        $result = sprintf($resultPattern, is_bool($value) ? ($value ? "1" : "0") : strval($value));
+        $resultPattern = $isFieldName ? "`%s`" : (is_bool($value) || is_null($value) ? "%s" : "'%s'");
+        $stringValue = is_bool($value) ? ($value ? "1" : "0") : (is_null($value) ? self::$NULL_VAL : strval($value));
+        $result = sprintf($resultPattern, $stringValue);
         return $result;
     }
     public static function GetItemValueOrDefault($params, $key, $defaultValue = NULL) {

@@ -5,6 +5,7 @@ class FilterHelper {
     private static $OR_OP = "OR";
     private static $LIKE_OP = "LIKE";
     private static $NOT_OP = "NOT";
+    private static $IS_OP = "IS";
     private static function _GetSqlFieldName($field) {
         $fieldParts = explode(".", $field);
         $result = "";
@@ -49,59 +50,61 @@ class FilterHelper {
             $clause = trim($expression[1]);
             $val = $expression[2];
             $pattern = "";
-            switch ($clause) {
-                case "=":
-                case "<>":
-                case ">":
-                case ">=":
-                case "<":
-                case "<=": {
-                    $pattern = "%s %s %s";
-                    $val = Utils::QuoteStringValue($val, false);
-                    break;
-                }
-                case "startswith": {
-                    $pattern = "%s %s '%s%%'";
-                    $clause = self::$LIKE_OP;
-                    $val = addcslashes($val, "%_");
-                    break;
-                }
-                case "endswith": {
-                    $pattern = "%s %s '%%%s'";
-                    $val = addcslashes($val, "%_");
-                    $clause = self::$LIKE_OP;
-                    break;
-                }
-                case "contains": {
-                    $pattern = "%s %s '%%%s%%'";
-                    $val = addcslashes($val, "%_");
-                    $clause = self::$LIKE_OP;
-                    break;
-                }
-                case "notcontains": {
-                    $pattern = "%s %s '%%%s%%'";
-                    $val = addcslashes($val, "%_");
-                    $clause = sprintf("%s %s", self::$NOT_OP, self::$LIKE_OP);
-                    break;
-                }
-                default: {
-                    $clause = "";
-                }
-            }
-            
-            if(is_null($val)){
-                $val = "null";
-
+            if (is_null($val)) {
+                $val = Utils::QuoteStringValue($val, false);
+                $pattern = "%s %s %s";
                 switch ($clause){
-                    case "=":
-                        $clause = "IS";
+                    case "=": {
+                        $clause = self::$IS_OP;
                         break;
-                    case "<>":
-                        $clause = "IS NOT";
+                    }
+                    case "<>": {
+                        $clause = self::$IS_OP." ".self::$NOT_OP;
                         break;
+                    }
                 }
             }
-            
+            else {
+                switch ($clause) {
+                    case "=":
+                    case "<>":
+                    case ">":
+                    case ">=":
+                    case "<":
+                    case "<=": {
+                        $pattern = "%s %s %s";
+                        $val = Utils::QuoteStringValue($val, false);
+                        break;
+                    }
+                    case "startswith": {
+                        $pattern = "%s %s '%s%%'";
+                        $clause = self::$LIKE_OP;
+                        $val = addcslashes($val, "%_");
+                        break;
+                    }
+                    case "endswith": {
+                        $pattern = "%s %s '%%%s'";
+                        $val = addcslashes($val, "%_");
+                        $clause = self::$LIKE_OP;
+                        break;
+                    }
+                    case "contains": {
+                        $pattern = "%s %s '%%%s%%'";
+                        $val = addcslashes($val, "%_");
+                        $clause = self::$LIKE_OP;
+                        break;
+                    }
+                    case "notcontains": {
+                        $pattern = "%s %s '%%%s%%'";
+                        $val = addcslashes($val, "%_");
+                        $clause = sprintf("%s %s", self::$NOT_OP, self::$LIKE_OP);
+                        break;
+                    }
+                    default: {
+                        $clause = "";
+                    }
+                }
+            }
             $result = sprintf($pattern, $fieldName, $clause, $val);
         }
         return $result;
