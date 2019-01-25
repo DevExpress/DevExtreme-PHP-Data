@@ -49,14 +49,20 @@ class DbSetAPITest extends TestBase {
             array("CustomerName", "=", "Fuller Andrew"),
             array("ID", "=", 21)
         );
-        $values = array(21, "Sir Rodney's Scones", "Dairy Products", "Fuller Andrew", "2013-06-19");
+        $filterExpression7 = array(
+            array("Category", "=", "Dairy Products"),
+            array("CustomerName", "=", null)
+        );
+        $values1 = array(21, "Sir Rodney's Scones", "Dairy Products", "Fuller Andrew", "2013-06-19");
+        $values2 = array(31, "Camembert Pierrot", "Dairy Products", "", "2013-11-17");
         return array(
-            array($filterExpression1, $values),
-            array($filterExpression2, $values),
-            array($filterExpression3, $values),
-            array($filterExpression4, $values),
-            array($filterExpression5, $values),
-            array($filterExpression6, $values)
+            array($filterExpression1, $values1),
+            array($filterExpression2, $values1),
+            array($filterExpression3, $values1),
+            array($filterExpression4, $values1),
+            array($filterExpression5, $values1),
+            array($filterExpression6, $values1),
+            array($filterExpression7, $values2)
         );
     }
     public function providerSort() {
@@ -177,11 +183,12 @@ class DbSetAPITest extends TestBase {
                 )
             ),
             array(
-                "summary" => array(2, 21, 34, 3),
+                "summary" => array(2, 31, 65, 4),
                 "items" => array(
                     array("summary" => array(2, 2, 2, 1)),
                     array("summary" => array(21, 21, 21, 1)),
-                    array("summary" => array(11, 11, 11, 1))
+                    array("summary" => array(11, 11, 11, 1)),
+                    array("summary" => array(31, 31, 31, 1)),
                 )
             ),
             array(
@@ -229,11 +236,11 @@ class DbSetAPITest extends TestBase {
             )
         );
         return array(
-            array($summaryExpression1, 30),
+            array($summaryExpression1, 31),
             array($summaryExpression2, 1),
-            array($summaryExpression3, 30),
-            array($summaryExpression4, 465),
-            array($summaryExpression5, 15.5)
+            array($summaryExpression3, 31),
+            array($summaryExpression4, 496),
+            array($summaryExpression5, 16)
         );
     }
     public function providerEscapeExpressionValues() {
@@ -245,7 +252,7 @@ class DbSetAPITest extends TestBase {
         );
     }
     public function testGetCount() {
-        $this->assertEquals(30, $this->dbSet->GetCount());
+        $this->assertEquals(31, $this->dbSet->GetCount());
     }
     public function testSelect() {
         $columns = array("BDate", "Category", "CustomerName");
@@ -278,6 +285,15 @@ class DbSetAPITest extends TestBase {
             $result[$i] = $data[$i]["ID"];
         }
         $this->assertEquals($values, $result);
+    }
+    public function testFilterNotNull() {
+        $filterExpression = array(
+            array("CustomerName", "<>", null),
+            array("ID", ">", 29)
+        );
+        $this->dbSet->Filter($filterExpression);
+        $data = $this->dbSet->AsArray();
+        $this->assertTrue($data !== null && count($data) == 1 && $data[0]["ID"] == 30);
     }
     /**
      * @dataProvider providerSort
