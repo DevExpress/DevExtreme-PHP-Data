@@ -46,7 +46,7 @@ class DataSourceLoaderTest extends TestBase {
             ),
             array(
                 array("ID", ">=", 29),
-                array(29, 30)
+                array(29, 30, 31)
             ),
             array(
                 array("ID", "<", 2),
@@ -79,12 +79,20 @@ class DataSourceLoaderTest extends TestBase {
                     array("Name", "notcontains", "a")
                 ),
                 array(9, 13, 14, 15, 21, 23, 26)
+            ),
+            array(
+               array(
+                   array("CustomerName", "<>", null),
+                   "and",
+                   array("ID", ">", 27)
+               ),
+               array(28, 29, 30)
             )
         );
     }
     public function providerGroup() {
         return array(
-            array(array("Category"), "", false, "key", 4, array(10, 9, 3, 8)),
+            array(array("Category"), "", false, "key", 4, array(10, 9, 4, 8)),
             array(
                 array(
                     (object)array(
@@ -96,7 +104,7 @@ class DataSourceLoaderTest extends TestBase {
                 false,
                 "key",
                 4,
-                array(10, 9, 3, 8)
+                array(10, 9, 4, 8)
             ),
             array(
                 array(
@@ -109,7 +117,7 @@ class DataSourceLoaderTest extends TestBase {
                 true,
                 "key",
                 4,
-                array(8, 3, 9, 10)
+                array(8, 4, 9, 10)
             ),
             array(
                 array(
@@ -123,7 +131,7 @@ class DataSourceLoaderTest extends TestBase {
                 true,
                 "key",
                 1,
-                array(30)
+                array(31)
             )
         );
     }
@@ -158,11 +166,11 @@ class DataSourceLoaderTest extends TestBase {
             )
         );
         return array(
-            array($summaryExpression1, 30),
+            array($summaryExpression1, 31),
             array($summaryExpression2, 1),
-            array($summaryExpression3, 30),
-            array($summaryExpression4, 465),
-            array($summaryExpression5, 15.5)
+            array($summaryExpression3, 31),
+            array($summaryExpression4, 496),
+            array($summaryExpression5, 16)
         );
     }
     public function testLoaderSelect() {
@@ -183,7 +191,7 @@ class DataSourceLoaderTest extends TestBase {
         $data = DataSourceLoader::Load($this->dbSet, $params);
         $result = isset($data) && is_array($data) &&
                   isset($data["data"]) && isset($data["totalCount"]) &&
-                  count($data["data"]) == $data["totalCount"] && $data["totalCount"] == 30;
+                  count($data["data"]) == $data["totalCount"] && $data["totalCount"] == 31;
         $this->assertTrue($result);
     }
     /**
@@ -205,7 +213,7 @@ class DataSourceLoaderTest extends TestBase {
             }
             $currentValue = $result[$i][$field];
         }
-        $this->assertTrue($sorted && $dataItemsCount == 30);
+        $this->assertTrue($sorted && $dataItemsCount == 31);
     }
     public function testLoaderSkipTake() {
         $params = array(
@@ -247,7 +255,7 @@ class DataSourceLoaderTest extends TestBase {
         else {
             for ($i = 0; $i < $itemsCount; $i++) {
                 if ($result[$i]["ID"] != $ids[$i]) {
-                    $paginated = false;
+                    $filtered = false;
                     break;
                 }
             }

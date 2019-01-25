@@ -1,4 +1,4 @@
-
+﻿USE test
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `test_products` (
   `ID` int(11) NOT NULL,
   `Name` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `Category` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `CustomerName` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `CustomerName` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NULL,
   `BDate` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -44,6 +44,7 @@ INSERT INTO `test_products` (`ID`, `Name`, `Category`, `CustomerName`, `BDate`) 
 (25, 'NuNuCa Nuß-Nougat-Creme', 'Seafood', 'Davolio Nancy', '2013-01-14'),
 (26, 'Gumbär Gummibärchen', 'Condiments', 'Fuller Andrew', '2013-03-09'),
 (27, 'Schoggi Schokolade', 'Seafood', 'Leverling Janet', '2013-06-23'),
-(28, 'Rössle Sauerkraut', 'Condiments', 'Peacock Margaret', '2013-08-05'),
-(29, 'Thüringer Rostbratwurst', 'Beverages', 'Peacock Margaret', '2013-01-26'),
-(30, 'N''o"r\\d-Ost Mat%123_jes)hering#', 'Seafood', 'Leverling Janet', '2013-11-16');
+(28, 'Rossle Sauerkraut', 'Condiments', 'Peacock Margaret', '2013-08-05'),
+(29, 'Thuringer Rostbratwurst', 'Beverages', 'Peacock Margaret', '2013-01-26'),
+(30, 'N''o"r\\d-Ost Mat%123_jes)hering#', 'Seafood', 'Leverling Janet', '2013-11-16'),
+(31, 'Camembert Pierrot', 'Dairy Products', NULL, '2013-11-17');
