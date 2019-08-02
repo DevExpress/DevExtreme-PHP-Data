@@ -139,11 +139,13 @@ class DbSetAPITest extends TestBase {
         $group = array(
             (object)array(
                 "selector" => "Category",
-                "desc" => false
+                "desc" => false,
+                "isExpanded" => false
             ),
             (object)array(
                 "selector" => "CustomerName",
-                "desc" => true
+                "desc" => true,
+                "isExpanded" => false
             )
         );
         $groupSummary = array(
@@ -360,7 +362,8 @@ class DbSetAPITest extends TestBase {
         $groupExpression = array(
             (object)array(
                 "selector" => "Category",
-                "desc" => false
+                "desc" => false,
+                "isExpanded" => false
             )
         );
         $this->dbSet->Group($groupExpression);

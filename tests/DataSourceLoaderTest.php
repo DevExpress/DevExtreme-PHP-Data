@@ -110,7 +110,8 @@ class DataSourceLoaderTest extends TestBase {
                 array(
                     (object)array(
                         "selector" => "Category",
-                        "desc" => true
+                        "desc" => true,
+                        "isExpanded" => false
                     )
                 ),
                 "Z",
@@ -124,7 +125,8 @@ class DataSourceLoaderTest extends TestBase {
                     (object)array(
                         "selector" => "BDate",
                         "groupInterval" => "year",
-                        "desc" => true
+                        "desc" => true,
+                        "isExpanded" => false
                     )
                 ),
                 "9999",
@@ -275,7 +277,8 @@ class DataSourceLoaderTest extends TestBase {
         $dataItemsCount = isset($result) ? count($result) : 0;
         for ($i = 0; $i < $dataItemsCount; $i++) {
             $compareResult = strcmp($currentValue, strval($result[$i][$field]));
-            if ((!$desc && $compareResult > 0) || ($desc && $compareResult < 0) || ($result[$i]["count"] != $itemsInGroups[$i])) {
+            $count = isset($groupExpression[0]->isExpanded) && $groupExpression[0]->isExpanded === false ? $result[$i]["count"] : count($result[$i]["items"]);
+            if ((!$desc && $compareResult > 0) || ($desc && $compareResult < 0) || ($count != $itemsInGroups[$i])) {
                 $grouped = false;
                 break;
             }
@@ -287,7 +290,8 @@ class DataSourceLoaderTest extends TestBase {
         $groupExpression = array(
             (object)array(
                 "selector" => "Category",
-                "desc" => false
+                "desc" => false,
+                "isExpanded" => false
             )
         );
         $params = array(
