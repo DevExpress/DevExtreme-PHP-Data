@@ -14,5 +14,13 @@ services:
 before_script:
   - mysql -e "CREATE DATABASE IF NOT EXISTS test;" -uroot
   - mysql test < tests/test_products.sql
+  - |
+    echo "TRAVIS_PHP_VERSION:" $TRAVIS_PHP_VERSION;
+    php -v;
+    php -r 'echo "PHP: ".PHP_VERSION."\n";';
+    if [ $(echo "$TRAVIS_PHP_VERSION >= 7.1" | bc -l) -eq 1 ]; then
+      echo using PHPUnit 5.7.23
+      curl -sSfL -o ~/.phpenv/versions/$TRAVIS_PHP_VERSION/bin/phpunit https://phar.phpunit.de/phpunit-5.7.23.phar;
+    fi
 
 script: phpunit

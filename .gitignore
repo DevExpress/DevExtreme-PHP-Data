@@ -1,2 +1,5 @@
 example/bower_components
+example/php/.vscode
+DevExtreme/.vscode
 tests/config.json
+

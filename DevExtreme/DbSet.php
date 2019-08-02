@@ -16,6 +16,7 @@ class DbSet {
     private static $MAX_ROW_INDEX = 2147483647;
     private $dbTableName;
     private $tableNameIndex = 0;
+    private $lastWrappedTableName;
     private $resultQuery;
     private $mySQL;
     private $lastError;
@@ -37,14 +38,14 @@ class DbSet {
     }
     private function _WrapQuery() {
         $this->tableNameIndex++;
-        $this->resultQuery = sprintf("%s %s %s (%s) %s %s_%d",
+        $this->lastWrappedTableName = "{$this->dbTableName}_{$this->tableNameIndex}";
+        $this->resultQuery = sprintf("%s %s %s (%s) %s %s",
                                       self::$SELECT_OP,
                                       self::$ALL_FIELDS,
                                       self::$FROM_OP,
                                       $this->resultQuery,
                                       AggregateHelper::AS_OP,
-                                      $this->dbTableName,
-                                      $this->tableNameIndex);
+                                      $this->lastWrappedTableName);
     }
     private function _PrepareQueryForLastOperator($operator) {
         $operator = trim($operator);
@@ -137,6 +138,7 @@ class DbSet {
             $groupFields = "";
             $sortFields = "";
             $selectFields = "";
+            $lastGroupExpanded = true;
             $groupCount = 0;
             if (is_string($expression)) {
                 $sortFields = $groupFields = trim($expression);
@@ -148,25 +150,37 @@ class DbSet {
                 $groupFields = $fieldSet["group"];
                 $selectFields = $fieldSet["select"];
                 $sortFields = $fieldSet["sort"];
+                $lastGroupExpanded = AggregateHelper::IsLastGroupExpanded($expression);
             }
             if ($groupCount > 0) {
-                $groupSummaryData = isset($groupSummary) && is_array($groupSummary) ? AggregateHelper::GetSummaryInfo($groupSummary) : NULL;
-                $selectExpression = sprintf("%s, %s(1)%s",
-                                            strlen($selectFields) ? $selectFields : $groupFields,
-                                            AggregateHelper::COUNT_OP,
-                                            (isset($groupSummaryData) && isset($groupSummaryData["fields"]) && strlen($groupSummaryData["fields"]) ?
-                                             ", ".$groupSummaryData["fields"] : ""));
-                $groupCount++;
-                $this->_WrapQuery();
-                $this->_SelectImpl($selectExpression, false);
-                $this->resultQuery .= sprintf(" %s %s",
-                                               self::$GROUP_OP,
-                                               $groupFields);
-                $this->Sort($sortFields);
+                if (!$lastGroupExpanded) {
+                    $groupSummaryData = isset($groupSummary) && is_array($groupSummary) ? AggregateHelper::GetSummaryInfo($groupSummary) : NULL;
+                    $selectExpression = sprintf("%s, %s(1)%s",
+                                                strlen($selectFields) ? $selectFields : $groupFields,
+                                                AggregateHelper::COUNT_OP,
+                                                (isset($groupSummaryData) && isset($groupSummaryData["fields"]) && strlen($groupSummaryData["fields"]) ?
+                                                 ", ".$groupSummaryData["fields"] : ""));
+                    $groupCount++;
+                    $this->_WrapQuery();
+                    $this->_SelectImpl($selectExpression, false);
+                    $this->resultQuery .= sprintf(" %s %s",
+                                                   self::$GROUP_OP,
+                                                   $groupFields);
+                    $this->Sort($sortFields);
+                }
+                else {
+                    $this->_WrapQuery();
+                    $selectExpression = "{$groupFields}, {$this->lastWrappedTableName}.*";
+                    $this->_SelectImpl($selectExpression, false);
+                    $this->resultQuery .= sprintf(" %s %s",
+                                                    self::$ORDER_OP,
+                                                    $sortFields);
+                }
                 $this->groupSettings = array();
                 $this->groupSettings["groupCount"] = $groupCount;
-                $this->groupSettings["summaryTypes"] = $groupSummaryData["summaryTypes"];
-                if ($groupCount === 2) {
+                $this->groupSettings["lastGroupExpanded"] = $lastGroupExpanded;
+                $this->groupSettings["summaryTypes"] = !$lastGroupExpanded ? $groupSummaryData["summaryTypes"] : NULL;
+                if ($groupCount === 2 && !$lastGroupExpanded) {
                     $this->groupSettings["groupItemCountQuery"] = sprintf("SELECT COUNT(1) FROM (%s) AS %s_%d",
                                                                           $this->resultQuery,
                                                                           $this->dbTableName,
@@ -213,6 +227,9 @@ class DbSet {
                         $result[$i] = Utils::StringToNumber($item);
                     }
                 }
+                if ($queryResult !== false) {
+                    $queryResult->close();
+                }
             }
         }
         return $result;
@@ -228,6 +245,9 @@ class DbSet {
             else if ($queryResult->num_rows > 0) {
                 $row = $queryResult->fetch_array(MYSQLI_NUM);
                 $result = Utils::StringToNumber($row[0]);
+            }
+            if ($queryResult !== false) {
+                $queryResult->close();
             }
         }
         return $result;
@@ -252,6 +272,9 @@ class DbSet {
                 $row = $queryResult->fetch_array(MYSQLI_NUM);
                 $result = Utils::StringToNumber($row[0]);
             }
+            if ($queryResult !== false) {
+                $queryResult->close();
+            }
         }
         return $result;
     }
@@ -270,6 +293,7 @@ class DbSet {
                else {
                    $result = $queryResult->fetch_all(MYSQLI_ASSOC);
                }
+               $queryResult->close();
            }
         }
         return $result;
