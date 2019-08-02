@@ -6,15 +6,16 @@ class AggregateHelper {
     const AVG_OP = "AVG";
     const COUNT_OP = "COUNT";
     const AS_OP = "AS";
-    private static function _RecalculateGroupCountAndSummary(&$dataItem, $groupCount, $groupIndex, $summaryTypes = NULL) {
-        if ($groupIndex <= $groupCount - 3) {
+    private static function _RecalculateGroupCountAndSummary(&$dataItem, $groupInfo) {
+        if ($groupInfo["groupIndex"] <= $groupInfo["groupCount"] - 3) {
             $items = $dataItem["items"];
-            $dataItem["count"] = count($items);
             foreach ($items as $item) {
-                self::_RecalculateGroupCountAndSummary($item, $groupCount, $groupIndex + 1, $summaryTypes);
+                $grInfo = $groupInfo;
+                $grInfo["groupIndex"]++;
+                self::_RecalculateGroupCountAndSummary($item, $grInfo);
             }
         }
-        if (isset($summaryTypes) && $groupIndex < $groupCount - 2) {
+        if (isset($groupInfo["summaryTypes"]) && $groupInfo["groupIndex"] < $groupInfo["groupCount"] - 2) {
             $result = array();
             $items = $dataItem["items"];
             $itemsCount = count($items);
@@ -26,7 +27,7 @@ class AggregateHelper {
                     }
                     continue;
                 }
-                foreach ($summaryTypes as $si => $stItem) {
+                foreach ($groupInfo["summaryTypes"] as $si => $stItem) {
                     if ($stItem == self::MIN_OP) {
                         if ($result[$si] > $currentSummaries[$si]) {
                             $result[$si] = $currentSummaries[$si];
@@ -42,7 +43,7 @@ class AggregateHelper {
                     $result[$si] += $currentSummaries[$si];
                 }
             }
-            foreach ($summaryTypes as $si => $stItem) {
+            foreach ($groupInfo["summaryTypes"] as $si => $stItem) {
                 if ($stItem == self::AVG_OP) {
                     $result[$si] /= $itemsCount;
                 }
@@ -50,62 +51,132 @@ class AggregateHelper {
             $dataItem["summary"] = $result;
         }
     }
-    private static function _GroupData($row, &$resultItems, $groupCount, $groupIndex, $summaryTypes = NULL) {
+    private static function _GetNewDataItem($row, $groupInfo) {
+        $dataItem = array();
+        $dataFieldCount = count($groupInfo["dataFieldNames"]);
+        for ($index = 0; $index < $dataFieldCount; $index++) {
+            $dataItem[$groupInfo["dataFieldNames"][$index]] = $row[$groupInfo["groupCount"] + $index];
+        }
+        return $dataItem;
+    }
+    private static function _GetNewGroupItem($row, $groupInfo) {
+        $groupIndexOffset = $groupInfo["lastGroupExpanded"] ? 1 : 2;
+        $groupItem = array();
+        $groupItem["key"] = $row[$groupInfo["groupIndex"]];
+        $groupItem["items"] = $groupInfo["groupIndex"] < $groupInfo["groupCount"] - $groupIndexOffset ? array() :
+                                                                                                          ($groupInfo["lastGroupExpanded"] ? array() : NULL);
+        if ($groupInfo["groupIndex"] == $groupInfo["groupCount"] - $groupIndexOffset) {
+            if (isset($groupInfo["summaryTypes"])) {
+                $summaries = array();
+                $endIndex = $groupInfo["groupIndex"] + count($groupInfo["summaryTypes"]) + 1;
+                for ($index = $groupInfo["groupCount"]; $index <= $endIndex; $index++) {
+                    $summaries[] = $row[$index];
+                }
+                $groupItem["summary"] = $summaries;
+            }
+            if (!$groupInfo["lastGroupExpanded"]) {
+                $groupItem["count"] = $row[$groupInfo["groupIndex"] + 1];
+            }
+            else {
+                $groupItem["items"][] = self::_GetNewDataItem($row, $groupInfo);
+            }
+        }
+        return $groupItem;
+    }
+    private static function _GroupData($row, &$resultItems, $groupInfo) {
         $itemsCount = count($resultItems);
         if (!isset($row) && !$itemsCount) {
             return;
         }
         $currentItem = NULL;
+        $groupIndexOffset = $groupInfo["lastGroupExpanded"] ? 1 : 2;
         if ($itemsCount) {
             $currentItem = &$resultItems[$itemsCount - 1];
-            if ($currentItem["key"] != $row[$groupIndex] || !isset($row)) {
-                if ($groupIndex == 0 && $groupCount > 2) {
-                    self::_RecalculateGroupCountAndSummary($currentItem, $groupCount, $groupIndex, $summaryTypes);
+            if (!$groupInfo["lastGroupExpanded"]) {
+                if ($currentItem["key"] != $row[$groupInfo["groupIndex"]] || !isset($row)) {
+                    if ($groupInfo["groupIndex"] == 0 && $groupInfo["groupCount"] > 2) {
+                        self::_RecalculateGroupCountAndSummary($currentItem, $groupInfo);
+                    }
+                    unset($currentItem);
+                    if (!isset($row)) {
+                        return;
+                    }
                 }
-                unset($currentItem);
-                if (!isset($row)) {
-                    return;
+            }
+            else {
+                if ($currentItem["key"] != $row[$groupInfo["groupIndex"]]) {
+                    unset($currentItem);
+                }
+                else {
+                    if ($groupInfo["groupIndex"] == $groupInfo["groupCount"] - $groupIndexOffset) {
+                        $currentItem["items"][] = self::_GetNewDataItem($row, $groupInfo);
+                    }
                 }
             }
         }
         if (!isset($currentItem)) {
-            $currentItem = array();
+            $currentItem = self::_GetNewGroupItem($row, $groupInfo);
             $resultItems[] = &$currentItem;
-            $currentItem["key"] = $row[$groupIndex];
-            $currentItem["items"] = $groupIndex < $groupCount - 2 ? array() : NULL;
-            if ($groupIndex == $groupCount - 2) {
-                if (isset($summaryTypes)) {
-                    $summaries = array();
-                    $endIndex = $groupIndex + count($summaryTypes) + 1;
-                    for ($index = $groupCount; $index <= $endIndex; $index++) {
-                        $summaries[] = $row[$index];
-                    }
-                    $currentItem["summary"] = $summaries;
-                }
-                $currentItem["count"] = $row[$groupIndex + 1];
-            }
         }
-        if ($groupIndex < $groupCount - 2) {
-            self::_GroupData($row, $currentItem["items"], $groupCount, ++$groupIndex, $summaryTypes);
+        if ($groupInfo["groupIndex"] < $groupInfo["groupCount"] - $groupIndexOffset) {
+            $groupInfo["groupIndex"]++;
+            self::_GroupData($row, $currentItem["items"], $groupInfo);
         }
     }
     public static function GetGroupedDataFromQuery($queryResult, $groupSettings) {
         $result = array();
         $row = NULL;
         $groupSummaryTypes = NULL;
-        $startSummaryFieldIndex = $groupSettings["groupCount"] - 1;
-        $endSummaryFieldIndex = $startSummaryFieldIndex;
+        $dataFieldNames = NULL;
+        $startSummaryFieldIndex = NULL;
+        $endSummaryFieldIndex = NULL;
+        if ($groupSettings["lastGroupExpanded"]) {
+            $queryFields = $queryResult->fetch_fields();
+            $dataFieldNames = array();
+            for ($i = $groupSettings["groupCount"]; $i < count($queryFields); $i++) {
+                $dataFieldNames[] = $queryFields[$i]->name;
+            }
+        }
+        else {
+            $startSummaryFieldIndex = $groupSettings["groupCount"] - 1;
+            $endSummaryFieldIndex = $startSummaryFieldIndex;
+        }
         if (isset($groupSettings["summaryTypes"])) {
             $groupSummaryTypes = $groupSettings["summaryTypes"];
             $endSummaryFieldIndex = $startSummaryFieldIndex + count($groupSummaryTypes);
         }
+        $groupInfo = array(
+            "groupCount" => $groupSettings["groupCount"],
+            "groupIndex" => 0,
+            "summaryTypes" => $groupSummaryTypes,
+            "lastGroupExpanded" => $groupSettings["lastGroupExpanded"],
+            "dataFieldNames" => $dataFieldNames
+        );
         while ($row = $queryResult->fetch_array(MYSQLI_NUM)) {
-            for ($i = $startSummaryFieldIndex; $i <= $endSummaryFieldIndex; $i++) {
-                $row[$i] = Utils::StringToNumber($row[$i]);
+            if (isset($startSummaryFieldIndex)) {
+                for ($i = $startSummaryFieldIndex; $i <= $endSummaryFieldIndex; $i++) {
+                    $row[$i] = Utils::StringToNumber($row[$i]);
+                }
             }
-            self::_GroupData($row, $result, $groupSettings["groupCount"], 0, $groupSummaryTypes);
+            self::_GroupData($row, $result, $groupInfo);
         }
-        self::_GroupData($row, $result, $groupSettings["groupCount"], 0, $groupSummaryTypes);
+        if (!$groupSettings["lastGroupExpanded"]) {
+            self::_GroupData($row, $result, $groupInfo);
+        }
+        return $result;
+    }
+    public static function IsLastGroupExpanded($items) {
+        $result = true;
+        $itemsCount = count($items);
+        if ($itemsCount > 0) {
+            $lastItem = $items[$itemsCount - 1];
+            if (gettype($lastItem) === "object") {
+                $result = isset($lastItem->isExpanded) ? $lastItem->isExpanded === true : true;
+            }
+            else {
+                $result = true;
+            }
+        }
         return $result;
     }
     public static function GetFieldSetBySelectors($items) {
