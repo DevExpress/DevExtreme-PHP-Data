@@ -163,6 +163,12 @@ class AggregateHelper {
         if (!$groupSettings["lastGroupExpanded"]) {
             self::_GroupData($row, $result, $groupInfo);
         }
+        else {
+            if (isset($groupSettings["skip"]) && $groupSettings["skip"] >= 0 &&
+                isset($groupSettings["take"]) && $groupSettings["take"] >= 0) {
+                $result = array_slice($result, $groupSettings["skip"], $groupSettings["take"]);
+            }
+        }
         return $result;
     }
     public static function IsLastGroupExpanded($items) {
