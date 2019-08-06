@@ -317,6 +317,34 @@ class DataSourceLoaderTest extends TestBase {
         }
         $this->assertTrue($isPaginated && $groupCount === 4);
     }
+    public function testLoaderGroupPagingWithExpandedGroups() {
+        $groupExpression = array(
+            (object)array(
+                "selector" => "Category",
+                "desc" => false,
+                "isExpanded" => true
+            )
+        );
+        $params = array(
+            "group" => $groupExpression,
+            "skip" => 1,
+            "take" => 2
+        );
+        $resultGroupItems = array("Condiments", "Dairy Products");
+        $data = DataSourceLoader::Load($this->dbSet, $params);
+        $isPaginated = false;
+        if (isset($data) && isset($data["data"]) && count($resultGroupItems) === count($data["data"])) {
+            $groupItems = $data["data"];
+            $isPaginated = true;
+            foreach ($groupItems as $index => $groupItem) {
+                if (strcmp($groupItem["key"], $resultGroupItems[$index]) !== 0) {
+                    $isPaginated = false;
+                    break;
+                }
+            }
+        }
+        $this->assertTrue($isPaginated);
+    }
     /**
      * @dataProvider providerTotalSummary
      */
