@@ -180,13 +180,21 @@ class DbSet {
                 $this->groupSettings["groupCount"] = $groupCount;
                 $this->groupSettings["lastGroupExpanded"] = $lastGroupExpanded;
                 $this->groupSettings["summaryTypes"] = !$lastGroupExpanded ? $groupSummaryData["summaryTypes"] : NULL;
-                if ($groupCount === 2 && !$lastGroupExpanded) {
-                    $this->groupSettings["groupItemCountQuery"] = sprintf("SELECT COUNT(1) FROM (%s) AS %s_%d",
-                                                                          $this->resultQuery,
-                                                                          $this->dbTableName,
-                                                                          $this->tableNameIndex + 1);
+                if (!$lastGroupExpanded) {
+                    if ($groupCount === 2) {
+                        $this->groupSettings["groupItemCountQuery"] = sprintf("SELECT COUNT(1) FROM (%s) AS %s_%d",
+                                                                                $this->resultQuery,
+                                                                                $this->dbTableName,
+                                                                                $this->tableNameIndex + 1);
+                        if (isset($skip) || isset($take)) {
+                            $this->SkipTake($skip, $take);
+                        }
+                    }
+                }
+                else {
                     if (isset($skip) || isset($take)) {
-                        $this->SkipTake($skip, $take);
+                        $this->groupSettings["skip"] = isset($skip) ? Utils::StringToNumber($skip) : 0;
+                        $this->groupSettings["take"] = isset($take) ? Utils::StringToNumber($take) : 0;
                     }
                 }
             }
