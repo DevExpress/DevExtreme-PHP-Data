@@ -130,6 +130,41 @@ class DbSet {
         }
         return $this;
     }
+    private function _CreateGroupCountQuery($firstGroupField, $skip = NULL, $take = NULL) {
+        $groupCount = $this->groupSettings["groupCount"];
+        $lastGroupExpanded = $this->groupSettings["lastGroupExpanded"];
+        if (!$lastGroupExpanded) {
+            if ($groupCount === 2) {
+                $this->groupSettings["groupItemCountQuery"] = sprintf("%s COUNT(1) %s (%s) AS %s_%d",
+                                                                        self::$SELECT_OP,
+                                                                        self::$FROM_OP,
+                                                                        $this->resultQuery,
+                                                                        $this->dbTableName,
+                                                                        $this->tableNameIndex + 1);
+                if (isset($skip) || isset($take)) {
+                    $this->SkipTake($skip, $take);
+                }
+            }
+        }
+        else {
+            $groupQuery = sprintf("%s COUNT(1) %s %s %s %s",
+                                   self::$SELECT_OP,
+                                   self::$FROM_OP,
+                                   $this->dbTableName,
+                                   self::$GROUP_OP,
+                                   $firstGroupField);
+            $this->groupSettings["groupItemCountQuery"] = sprintf("%s COUNT(1) %s (%s) AS %s_%d",
+                                                                   self::$SELECT_OP,
+                                                                   self::$FROM_OP,
+                                                                   $groupQuery,
+                                                                   $this->dbTableName,
+                                                                   $this->tableNameIndex + 1);
+            if (isset($skip) || isset($take)) {
+                $this->groupSettings["skip"] = isset($skip) ? Utils::StringToNumber($skip) : 0;
+                $this->groupSettings["take"] = isset($take) ? Utils::StringToNumber($take) : 0;
+            }
+        }
+    }
     public function Group($expression, $groupSummary = NULL, $skip = NULL, $take = NULL) {
         Utils::EscapeExpressionValues($this->mySQL, $expression);
         Utils::EscapeExpressionValues($this->mySQL, $groupSummary);
@@ -180,23 +215,8 @@ class DbSet {
                 $this->groupSettings["groupCount"] = $groupCount;
                 $this->groupSettings["lastGroupExpanded"] = $lastGroupExpanded;
                 $this->groupSettings["summaryTypes"] = !$lastGroupExpanded ? $groupSummaryData["summaryTypes"] : NULL;
-                if (!$lastGroupExpanded) {
-                    if ($groupCount === 2) {
-                        $this->groupSettings["groupItemCountQuery"] = sprintf("SELECT COUNT(1) FROM (%s) AS %s_%d",
-                                                                                $this->resultQuery,
-                                                                                $this->dbTableName,
-                                                                                $this->tableNameIndex + 1);
-                        if (isset($skip) || isset($take)) {
-                            $this->SkipTake($skip, $take);
-                        }
-                    }
-                }
-                else {
-                    if (isset($skip) || isset($take)) {
-                        $this->groupSettings["skip"] = isset($skip) ? Utils::StringToNumber($skip) : 0;
-                        $this->groupSettings["take"] = isset($take) ? Utils::StringToNumber($take) : 0;
-                    }
-                }
+                $firstGroupField = explode(",", $groupFields)[0];
+                $this->_CreateGroupCountQuery($firstGroupField, $skip, $take);
             }
         }
         return $this;
