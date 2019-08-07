@@ -137,6 +137,39 @@ class DataSourceLoaderTest extends TestBase {
             )
         );
     }
+    public function providerGroupPaging() {
+        $groupExpression1 = array(
+            (object)array(
+                "selector" => "Category",
+                "desc" => false,
+                "isExpanded" => false
+            )
+        );
+        $groupExpression2 = array(
+            (object)array(
+                "selector" => "Category",
+                "desc" => false,
+                "isExpanded" => true
+            )
+        );
+        $params1 = array(
+            "requireGroupCount" => true,
+            "group" => $groupExpression1,
+            "skip" => 1,
+            "take" => 2
+        );
+        $params2 = array(
+            "requireGroupCount" => true,
+            "group" => $groupExpression2,
+            "skip" => 1,
+            "take" => 2
+        );
+        $resultGroupItems = array("Condiments", "Dairy Products");
+        return array(
+            array($params1, $resultGroupItems),
+            array($params2, $resultGroupItems)
+        );
+    }
     public function providerTotalSummary() {
         $summaryExpression1 = array(
             (object)array(
@@ -286,21 +319,10 @@ class DataSourceLoaderTest extends TestBase {
         }
         $this->assertTrue($grouped && $dataItemsCount == $groupCount);
     }
-    public function testLoaderGroupPaging() {
-        $groupExpression = array(
-            (object)array(
-                "selector" => "Category",
-                "desc" => false,
-                "isExpanded" => false
-            )
-        );
-        $params = array(
-            "requireGroupCount" => true,
-            "group" => $groupExpression,
-            "skip" => 1,
-            "take" => 2
-        );
-        $resultGroupItems = array("Condiments", "Dairy Products");
+    /**
+     * @dataProvider providerGroupPaging
+     */
+    public function testLoaderGroupPaging($params, $resultGroupItems) {
         $data = DataSourceLoader::Load($this->dbSet, $params);
         $isPaginated = false;
         $groupCount = 0;
@@ -316,34 +338,6 @@ class DataSourceLoaderTest extends TestBase {
             $groupCount = $data["groupCount"];
         }
         $this->assertTrue($isPaginated && $groupCount === 4);
-    }
-    public function testLoaderGroupPagingWithExpandedGroups() {
-        $groupExpression = array(
-            (object)array(
-                "selector" => "Category",
-                "desc" => false,
-                "isExpanded" => true
-            )
-        );
-        $params = array(
-            "group" => $groupExpression,
-            "skip" => 1,
-            "take" => 2
-        );
-        $resultGroupItems = array("Condiments", "Dairy Products");
-        $data = DataSourceLoader::Load($this->dbSet, $params);
-        $isPaginated = false;
-        if (isset($data) && isset($data["data"]) && count($resultGroupItems) === count($data["data"])) {
-            $groupItems = $data["data"];
-            $isPaginated = true;
-            foreach ($groupItems as $index => $groupItem) {
-                if (strcmp($groupItem["key"], $resultGroupItems[$index]) !== 0) {
-                    $isPaginated = false;
-                    break;
-                }
-            }
-        }
-        $this->assertTrue($isPaginated);
     }
     /**
      * @dataProvider providerTotalSummary
