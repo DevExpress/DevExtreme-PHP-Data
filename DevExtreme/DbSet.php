@@ -176,7 +176,7 @@ class DbSet {
             $lastGroupExpanded = true;
             $groupCount = 0;
             if (is_string($expression)) {
-                $sortFields = $groupFields = trim($expression);
+                $selectFields = $sortFields = $groupFields = trim($expression);
                 $groupCount = count(explode(",", $expression));
             }
             if (is_array($expression)) {
@@ -205,7 +205,7 @@ class DbSet {
                 }
                 else {
                     $this->_WrapQuery();
-                    $selectExpression = "{$groupFields}, {$this->lastWrappedTableName}.*";
+                    $selectExpression = "{$selectFields}, {$this->lastWrappedTableName}.*";
                     $this->_SelectImpl($selectExpression, false);
                     $this->resultQuery .= sprintf(" %s %s",
                                                     self::$ORDER_OP,
