@@ -6,6 +6,7 @@ class AggregateHelper {
     const AVG_OP = "AVG";
     const COUNT_OP = "COUNT";
     const AS_OP = "AS";
+    const GENERATED_FIELD_PREFIX = "dx_";
     private static function _RecalculateGroupCountAndSummary(&$dataItem, $groupInfo) {
         if ($groupInfo["groupIndex"] <= $groupInfo["groupCount"] - 3) {
             $items = $dataItem["items"];
@@ -137,12 +138,9 @@ class AggregateHelper {
                 $dataFieldNames[] = $queryFields[$i]->name;
             }
         }
-        else {
-            $startSummaryFieldIndex = $groupSettings["groupCount"] - 1;
-            $endSummaryFieldIndex = $startSummaryFieldIndex;
-        }
         if (isset($groupSettings["summaryTypes"])) {
             $groupSummaryTypes = $groupSettings["summaryTypes"];
+            $startSummaryFieldIndex = $groupSettings["groupCount"] - 1;
             $endSummaryFieldIndex = $startSummaryFieldIndex + count($groupSummaryTypes);
         }
         $groupInfo = array(
@@ -195,14 +193,14 @@ class AggregateHelper {
             $selectField = NULL;
             $desc = false;
             if (is_string($item) && strlen($item = trim($item))) {
-                $groupField = $sortField = Utils::QuoteStringValue($item);
+                $selectField = $groupField = $sortField = Utils::QuoteStringValue($item);
             }
             else if (gettype($item) === "object" && isset($item->selector)) {
                 $quoteSelector = Utils::QuoteStringValue($item->selector);
                 $desc = isset($item->desc) ? $item->desc : false;
                 if (isset($item->groupInterval)) {
                     if (is_int($item->groupInterval)) {
-                        $groupField = Utils::QuoteStringValue(sprintf("%s_%d", $item->selector, $item->groupInterval));
+                        $groupField = Utils::QuoteStringValue(sprintf("%s%s_%d", self::GENERATED_FIELD_PREFIX, $item->selector, $item->groupInterval));
                         $selectField = sprintf("(%s - (%s %% %d)) %s %s",
                                                $quoteSelector,
                                                $quoteSelector,
@@ -211,16 +209,17 @@ class AggregateHelper {
                                                $groupField);
                     }
                     else {
-                        $groupField = Utils::QuoteStringValue(sprintf("%s_%s", $item->selector, $item->groupInterval));
+                        $groupField = Utils::QuoteStringValue(sprintf("%s%s_%s", self::GENERATED_FIELD_PREFIX, $item->selector, $item->groupInterval));
                         $selectField = sprintf("%s(%s) %s %s",
                                                strtoupper($item->groupInterval),
                                                $quoteSelector,
                                                self::AS_OP,
                                                $groupField);
                     }
+                    $sortField = $groupField;
                 }
                 else {
-                    $groupField = $sortField = $quoteSelector;
+                    $selectField = $groupField = $sortField = $quoteSelector;
                 }
             }
             if (isset($selectField)) {
