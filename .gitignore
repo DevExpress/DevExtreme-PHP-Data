@@ -3,4 +3,5 @@ example/package-lock.json
 example/php/.vscode
 DevExtreme/.vscode
 tests/config.json
+.vscode
 

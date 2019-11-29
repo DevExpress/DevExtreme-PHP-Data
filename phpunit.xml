@@ -1,6 +1,8 @@
 <phpunit bootstrap="tests/bootstrap.php" verbose="true">
   <testsuites>
     <testsuite name="Helpers">
+      <file>tests/UtilsTest.php</file>
+      <file>tests/FilterHelperTest.php</file>
       <file>tests/AggregateHelperTest.php</file>
     </testsuite>
     <testsuite name="DataSourceLoader">
