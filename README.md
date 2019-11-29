@@ -58,7 +58,7 @@ The __example__ folder of this repository contains an example that shows how to 
 * copy this folder to your web server folder;
 * execute the following command in the __example__ folder;
 ```
-bower install
+npm install
 ```
 * Specify user credentials, database name and table name in the _php/DataController.php_ file (see the ```DataController``` constructor) and open the _index.html_ file in a web browser.
 
