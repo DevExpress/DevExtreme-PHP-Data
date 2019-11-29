@@ -1,4 +1,5 @@
-example/bower_components
+example/node_modules
+example/package-lock.json
 example/php/.vscode
 DevExtreme/.vscode
 tests/config.json
