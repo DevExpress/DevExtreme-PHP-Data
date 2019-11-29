@@ -246,10 +246,11 @@ class AggregateHelper {
         foreach ($expression as $index => $item) {
             if (gettype($item) === "object" && isset($item->summaryType)) {
                 $summaryTypes[] = strtoupper($item->summaryType);
-                $fields .= sprintf("%s(%s) %s f%d",
+                $fields .= sprintf("%s(%s) %s %sf%d",
                                    strlen($fields) > 0 ? ", ".$summaryTypes[$index] : $summaryTypes[$index],
                                    (isset($item->selector) && is_string($item->selector)) ? Utils::QuoteStringValue($item->selector) : "1",
                                    self::AS_OP,
+                                   self::GENERATED_FIELD_PREFIX,
                                    $index);
             }
         }
