@@ -2,8 +2,8 @@
   "name": "devextreme-php-data",
   "license": "MIT",
   "dependencies": {
-    "devextreme": "^19.2.3",
-    "devextreme-aspnet-data": "^2.5.1",
+    "devextreme": "20.1_next",
+    "devextreme-aspnet-data": "^2.6.1",
     "jquery": "^3.5.1"
   }
 }
