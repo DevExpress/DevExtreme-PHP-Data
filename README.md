@@ -3,11 +3,7 @@
 ---
 
 This library is intended for loading data from a MySQL (__[mysqlnd](http://php.net/manual/en/book.mysqlnd.php) is required__) database, based on expressions passed from a client by a DevExtreme data source. The library will allow you to implement a data service that supports
-the protocol described in the following help topics:
-
-[dxDataGrid - Use CustomStore](https://js.devexpress.com/Documentation/Guide/Widgets/DataGrid/Use_CustomStore/)
-
-[dxPivotGrid - Use CustomStore](https://js.devexpress.com/Documentation/Guide/Widgets/PivotGrid/Use_CustomStore/)
+the protocol described in the following help topic: [Custom Data Sources](https://js.devexpress.com/Documentation/Guide/Data_Binding/Specify_a_Data_Source/Custom_Data_Sources/).
 
 Moreover, the library will allow you to perform all operations such as, [filtering](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Filtering),
 [sorting](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Sorting), [paging](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Paging) and [grouping](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Grouping) on the server side.
