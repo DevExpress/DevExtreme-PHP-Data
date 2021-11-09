@@ -10,6 +10,11 @@ class UtilsTest extends TestBase {
             array(false, false, "0"),
             array(true, false, "1"),
             array(NULL, false, "NULL"),
+            array(
+                "a`b\"c'd~e!f@g#h\$i%j=k[l]m\\n/o|p^q&r*s(t)u+v<w>x,y{z}1?2:3;4\r5\n",
+                true,
+                "`abcdefghijklmnopqrstuvwxyz12345`"
+            )
         );
     }
     public function providerItemValue() {
