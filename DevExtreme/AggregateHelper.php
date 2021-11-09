@@ -5,6 +5,7 @@ class AggregateHelper {
     const MAX_OP = "MAX";
     const AVG_OP = "AVG";
     const COUNT_OP = "COUNT";
+    const SUM_OP = "SUM";
     const AS_OP = "AS";
     const GENERATED_FIELD_PREFIX = "dx_";
     private static function _RecalculateGroupCountAndSummary(&$dataItem, $groupInfo) {
@@ -239,13 +240,20 @@ class AggregateHelper {
             "select" => $select
         );
     }
+    private static function _IsSummaryTypeValid($summaryType) {
+        return in_array($summaryType, array(self::MIN_OP, self::MAX_OP, self::AVG_OP, self::COUNT_OP, self::SUM_OP));
+    }
     public static function GetSummaryInfo($expression) {
         $result = array();
         $fields = "";
         $summaryTypes = array();
         foreach ($expression as $index => $item) {
             if (gettype($item) === "object" && isset($item->summaryType)) {
-                $summaryTypes[] = strtoupper($item->summaryType);
+                $summaryType = strtoupper(trim($item->summaryType));
+                if (!self::_IsSummaryTypeValid($summaryType)) {
+                    continue;
+                }
+                $summaryTypes[] = $summaryType;
                 $fields .= sprintf("%s(%s) %s %sf%d",
                                    strlen($fields) > 0 ? ", ".$summaryTypes[$index] : $summaryTypes[$index],
                                    (isset($item->selector) && is_string($item->selector)) ? Utils::QuoteStringValue($item->selector) : "1",

@@ -2,6 +2,12 @@
 namespace DevExtreme;
 class Utils {
     private static $NULL_VAL = "NULL";
+    private static $FORBIDDEN_CHARACTERS = array(
+        "`", "\"", "'", "~", "!", "@", "#", "\$",
+        "%", "=", "[", "]", "\\", "/" , "|",  "^",
+        "&", "*", "(", ")", "+", "<", ">", ",", "{",
+        "}", "?", ":", ";", "\r", "\n"
+    );
     public static function StringToNumber($str) {
         $currentLocale = localeconv();
         $decimalPoint = $currentLocale["decimal_point"];
@@ -29,6 +35,8 @@ class Utils {
     public static function QuoteStringValue($value, $isFieldName = true) {
         if (!$isFieldName) {
            $value = self::_ConvertDateTimeToMySQLValue($value);
+        } else {
+            $value = str_replace(self::$FORBIDDEN_CHARACTERS, "", $value);
         }
         $resultPattern = $isFieldName ? "`%s`" : (is_bool($value) || is_null($value) ? "%s" : "'%s'");
         $stringValue = is_bool($value) ? ($value ? "1" : "0") : (is_null($value) ? self::$NULL_VAL : strval($value));
