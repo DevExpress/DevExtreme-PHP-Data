@@ -8,7 +8,8 @@ the protocol described in the following help topic: [Custom Data Sources](https:
 Moreover, the library will allow you to perform all operations such as, [filtering](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Filtering),
 [sorting](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Sorting), [paging](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Paging) and [grouping](https://js.devexpress.com/Documentation/Guide/Data_Layer/Data_Layer/#Data_Layer_Data_Layer_Reading_Data_Grouping) on the server side.
 
-Note that this library is an example of how to process client requests on the server side using PHP. If the functionality of the library does not meet your needs, feel free to fork the repository and modify the source code according to your requirements.
+__NOTE__
+This library is for demonstrative purposes only. It illustrates how to use PHP to process client requests on the server. If the current functionality does not meet your needs, feel free to fork the repository and modify the source code according to your requirements.
 
 ## Getting Started
 ---
